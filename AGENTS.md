@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Document validation runs in one server function calling the AI gateway with a strict JSON schema; reference data (requirements, classification, format rules) lives in browser storage, no documents are persisted — per the PRD privacy requirement.

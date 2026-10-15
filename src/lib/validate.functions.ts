@@ -105,7 +105,7 @@ const schema = obj({
 });
 
 export const validateDocument = createServerFn({ method: "POST" })
-  .inputValidator((input: Input) => {
+  .validator((input: Input) => {
     if (!input.teks?.trim() && !input.file) throw new Error("Masukkan teks surat atau unggah berkas.");
     if (input.file && input.file.base64.length > 14_000_000) throw new Error("Ukuran berkas melebihi 10 MB.");
     return input;

@@ -34,7 +34,7 @@ function toBase64(buf: ArrayBuffer) {
 
 function Index() {
   const [ref, setRef] = useState<ReferenceData>(DEFAULT_REFERENCE);
-  const [docType, setDocType] = useState(DEFAULT_REFERENCE.jenisDokumen[0].id);
+  const [docType, setDocType] = useState(DEFAULT_REFERENCE.jenisDokumen[0]?.id ?? "");
   const [teks, setTeks] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);

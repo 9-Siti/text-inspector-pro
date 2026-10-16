@@ -8,6 +8,7 @@ import {
   saveReference,
   type ReferenceData,
 } from "@/lib/reference";
+import { loadAcuanRemote, saveAcuanRemote } from "@/lib/acuan.functions";
 
 export const Route = createFileRoute("/acuan")({
   head: () => ({
@@ -29,7 +30,34 @@ const area =
 function AcuanPage() {
   const [ref, setRef] = useState<ReferenceData>(DEFAULT_REFERENCE);
   const [saved, setSaved] = useState(false);
-  useEffect(() => setRef(loadReference()), []);
+  const [busy, setBusy] = useState(false);
+  const [info, setInfo] = useState<string>("Memuat dari GitHub…");
+  useEffect(() => {
+    setRef(loadReference());
+    loadAcuanRemote()
+      .then(({ data, repo }) => {
+        if (data) {
+          const merged = { ...DEFAULT_REFERENCE, ...data };
+          saveReference(merged);
+          setRef(merged);
+          setInfo(`Tersinkron dengan GitHub: ${repo}`);
+        } else setInfo(`Belum ada data di GitHub — klik Simpan untuk membuat ${repo}`);
+      })
+      .catch((e) => setInfo(`GitHub tidak dapat dijangkau, memakai salinan perangkat ini. (${e.message})`));
+  }, []);
+  const save = async (data: ReferenceData) => {
+    saveReference(data);
+    setBusy(true);
+    try {
+      const { repo } = await saveAcuanRemote({ data });
+      setSaved(true);
+      setInfo(`Tersimpan ke GitHub: ${repo}`);
+    } catch (e) {
+      setInfo(`Gagal menyimpan ke GitHub: ${(e as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const update = (patch: Partial<ReferenceData>) => {
     setRef((r) => ({ ...r, ...patch }));
@@ -53,19 +81,18 @@ function AcuanPage() {
               onClick={() => {
                 resetReference();
                 setRef(DEFAULT_REFERENCE);
+                void save(DEFAULT_REFERENCE);
               }}
               className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
             >
               Kembalikan bawaan
             </button>
             <button
-              onClick={() => {
-                saveReference(ref);
-                setSaved(true);
-              }}
+              disabled={busy}
+              onClick={() => void save(ref)}
               className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              {saved ? "Tersimpan ✓" : "Simpan"}
+              {busy ? "Menyimpan…" : saved ? "Tersimpan ✓" : "Simpan"}
             </button>
           </div>
         </div>
@@ -130,7 +157,7 @@ function AcuanPage() {
             <textarea rows={rows} value={ref[key]} onChange={(e) => update({ [key]: e.target.value })} className={area} />
           </section>
         ))}
-        <p className="text-xs text-muted-foreground">Data acuan disimpan di perangkat ini.</p>
+        <p className="text-xs text-muted-foreground">{info}</p>
       </main>
     </div>
   );

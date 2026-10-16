@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { DEFAULT_REFERENCE, loadReference, type ReferenceData } from "@/lib/reference";
+import { DEFAULT_REFERENCE, loadReference, saveReference, type ReferenceData } from "@/lib/reference";
+import { loadAcuanRemote } from "@/lib/acuan.functions";
 import { validateDocument, type Laporan, type Temuan } from "@/lib/validate.functions";
 
 export const Route = createFileRoute("/")({
@@ -47,6 +48,15 @@ function Index() {
     const r = loadReference();
     setRef(r);
     if (r.jenisDokumen[0]) setDocType(r.jenisDokumen[0].id);
+    loadAcuanRemote()
+      .then(({ data }) => {
+        if (!data) return;
+        const merged = { ...DEFAULT_REFERENCE, ...data };
+        saveReference(merged);
+        setRef(merged);
+        setDocType((cur) => (merged.jenisDokumen.some((d) => d.id === cur) ? cur : (merged.jenisDokumen[0]?.id ?? cur)));
+      })
+      .catch(() => {});
   }, []);
 
   const laporan = history[history.length - 1];

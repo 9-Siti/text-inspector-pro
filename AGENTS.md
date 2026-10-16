@@ -9,4 +9,5 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Document validation runs in one server function calling the AI gateway with a strict JSON schema; reference data (requirements, classification, format rules) lives in browser storage, no documents are persisted — per the PRD privacy requirement.
+- Document validation runs in one server function calling the AI gateway with a strict JSON schema; no documents are persisted — per the PRD privacy requirement.
+- Reference data (requirements, classification, format rules) is stored as acuan.json in a private GitHub repo via the GitHub connector (src/lib/acuan.functions.ts), with localStorage as offline cache — so it is shared across devices.

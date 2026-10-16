@@ -6,8 +6,8 @@ const REPO = "validator-acuan";
 const PATH = "acuan.json";
 
 async function gh(path: string, init: RequestInit = {}) {
-  const lk = process.env.LOVABLE_API_KEY;
-  const gk = process.env.GITHUB_API_KEY;
+  const lk = process.env['LOVABLE_API_KEY'];
+  const gk = process.env['GITHUB_API_KEY'];
   if (!lk || !gk) throw new Error("Koneksi GitHub belum dikonfigurasi");
   return fetch(`${GATEWAY_URL}/${path}`, {
     ...init,
